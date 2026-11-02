@@ -1,0 +1,103 @@
+{
+  "app": {
+    "name": "HealthAI",
+    "tagline": "आपका AI स्वास्थ्य सहायक",
+    "disclaimer": "यह एक मार्गदर्शन उपकरण है, निदान नहीं। आपातकालीन स्थिति में 108 पर कॉल करें।"
+  },
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "checker": "लक्षण जांच",
+    "journal": "लक्षण डायरी",
+    "skin": "त्वचा विश्लेषक",
+    "outbreak": "प्रकोप अलर्ट",
+    "vitals": "वाइटल्स मॉनिटर",
+    "treatment": "उपचार गाइड",
+    "nutrition": "पोषण योजना",
+    "report": "स्वास्थ्य रिपोर्ट",
+    "family": "परिवार प्रोफाइल",
+    "settings": "सेटिंग्स",
+    "vault": "हेल्थ वॉल्ट",
+    "passport": "हेल्थ पासपोर्ट",
+    "gamification": "गेमिफिकेशन",
+    "rural": "ग्रामीण मोड",
+    "environment": "पर्यावरण रडार",
+    "lab": "लैब विश्लेषक"
+  },
+  "dashboard": {
+    "greeting": "नमस्ते, {{name}} 👋",
+    "subtitle": "आज का आपका स्वास्थ्य अवलोकन",
+    "healthScore": "स्वास्थ्य स्कोर",
+    "recentSymptoms": "हाल के लक्षण",
+    "heartRate": "हृदय गति",
+    "temperature": "तापमान",
+    "spo2": "SpO2",
+    "sleep": "नींद"
+  },
+  "concierge": {
+    "title": "AI स्वास्थ्य कंसीयज",
+    "placeholder": "अपने लक्षणों का वर्णन करें...",
+    "send": "भेजें",
+    "emergency": "आपातकाल",
+    "uploadLab": "लैब रिपोर्ट अपलोड करें",
+    "analyzing": "विश्लेषण कर रहा है..."
+  },
+  "vault": {
+    "title": "हेल्थ वॉल्ट",
+    "unlock": "अपना वॉल्ट खोलें",
+    "passphrase": "पासफ़्रेज़ दर्ज करें",
+    "upload": "दस्तावेज़ अपलोड करें",
+    "categories": "श्रेणियाँ",
+    "prescriptions": "नुस्खे",
+    "labReports": "लैब रिपोर्ट",
+    "imaging": "इमेजिंग",
+    "genetic": "जेनेटिक डेटा",
+    "vaccination": "टीकाकरण",
+    "share": "साझा करें",
+    "encrypted": "एन्क्रिप्टेड"
+  },
+  "passport": {
+    "title": "हेल्थ पासपोर्ट",
+    "bloodGroup": "रक्त समूह",
+    "allergies": "एलर्जी",
+    "vaccinations": "टीकाकरण",
+    "chronicConditions": "पुरानी बीमारियाँ",
+    "emergencyContact": "आपातकालीन संपर्क",
+    "qrShare": "QR साझा करें",
+    "verify": "सत्यापित करें"
+  },
+  "environment": {
+    "title": "पर्यावरण स्वास्थ्य",
+    "aqi": "AQI",
+    "pollen": "पराग",
+    "uv": "UV सूचकांक",
+    "mosquito": "मच्छर सूचकांक",
+    "alerts": "स्वास्थ्य अलर्ट"
+  },
+  "gamification": {
+    "title": "गेमिफिकेशन",
+    "streak": "दिनों की लगातार उपस्थिति",
+    "xp": "XP",
+    "level": "स्तर",
+    "badges": "बैज",
+    "challenges": "चुनौतियाँ",
+    "leaderboard": "लीडरबोर्ड"
+  },
+  "rural": {
+    "title": "ग्रामीण मोड",
+    "offline": "ऑफलाइन मोड",
+    "lowBandwidth": "कम बैंडविड्थ",
+    "language": "भाषा",
+    "highContrast": "उच्च कंट्रास्ट",
+    "smsMode": "SMS मोड"
+  },
+  "lab": {
+    "title": "लैब रिपोर्ट विश्लेषक",
+    "upload": "रिपोर्ट अपलोड करें",
+    "analyzing": "विश्लेषण कर रहा है...",
+    "normal": "सामान्य",
+    "abnormal": "असामान्य",
+    "critical": "गंभीर",
+    "trend": "प्रवृत्ति"
+  }
+}
+
