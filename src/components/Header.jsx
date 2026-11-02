@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Search, Bell, AlertTriangle, User, ChevronDown,
-  Menu, Sparkles, Activity, FileText, PhoneCall, Check, ExternalLink
+  Menu, Sparkles, Activity, FileText, PhoneCall, Check, ExternalLink,
+  Flame, Trophy, Gift, ShieldCheck
 } from './Icons';
 import { useNotification } from './NotificationContext';
+import { useGamification } from '../context/GamificationContext';
 
 export default function Header({
   activePage,
@@ -16,12 +18,22 @@ export default function Header({
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const { showToast } = useNotification();
+  const {
+    xp,
+    currentLevel,
+    currentTier,
+    nextTier,
+    xpNeededForNext,
+    levelProgressPct,
+    streak,
+    setRewardsModalOpen,
+  } = useGamification();
 
   const [notifications, setNotifications] = useState([
     {
       id: 1,
       title: 'Active Dengue Outbreak',
-      desc: 'HSR Layout (18km away) — 47 new cases reported. Take precautions.',
+      desc: 'HSR Layout (18km away) — 47 new cases reported. Preemptive watch active.',
       time: '10m ago',
       unread: true,
       type: 'alert',
@@ -29,21 +41,21 @@ export default function Header({
     },
     {
       id: 2,
-      title: 'Sleep Target Alert',
-      desc: '6.8 hrs recorded last night — 20 mins below recommended 7.0 hrs.',
-      time: '2h ago',
+      title: 'Level 4 Reward Available at 500 XP',
+      desc: `You need only ${xpNeededForNext} XP more to unlock a Free Tele-Doctor Consultation Pass!`,
+      time: '1h ago',
       unread: true,
-      type: 'vitals',
-      page: 'vitals',
+      type: 'reward',
+      page: 'dashboard',
     },
     {
       id: 3,
-      title: 'Hydration Target',
-      desc: '1.2L remaining to hit today’s 3.0L goal.',
-      time: '4h ago',
+      title: 'Sleep Target Alert',
+      desc: '6.8 hrs recorded last night — 20 mins below target 7.0 hrs.',
+      time: '3h ago',
       unread: false,
-      type: 'nutrition',
-      page: 'nutrition',
+      type: 'vitals',
+      page: 'vitals',
     },
   ]);
 
@@ -51,10 +63,10 @@ export default function Header({
   const notifRef = useRef(null);
   const profileRef = useRef(null);
 
-  // Keyboard shortcut listener ('/' to focus search)
+  // Keyboard shortcut listener ('/' or 'Cmd+K' to focus search)
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === '/' && document.activeElement !== searchRef.current) {
+      if ((e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) && document.activeElement !== searchRef.current) {
         e.preventDefault();
         searchRef.current?.focus();
       }
@@ -63,7 +75,7 @@ export default function Header({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Close dropdowns on click outside
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (notifRef.current && !notifRef.current.contains(e.target)) {
@@ -85,16 +97,16 @@ export default function Header({
   };
 
   const navSearchItems = [
-    { label: 'Symptom Checker / AI Concierge', page: 'checker', category: 'Clinical' },
+    { label: 'AI Health Concierge / Triage', page: 'checker', category: 'Clinical AI' },
     { label: 'Lab Report & Prescription OCR', page: 'lab', category: 'Diagnostics' },
-    { label: 'Outbreak Radar (Dengue, COVID)', page: 'outbreak', category: 'Surveillance' },
-    { label: 'Health Data Vault (Encrypted PHR)', page: 'vault', category: 'Security' },
-    { label: 'Health Passport (Verifiable QR)', page: 'passport', category: 'Identity' },
+    { label: 'Outbreak Alerts & Geo-Radar', page: 'outbreak', category: 'Surveillance' },
+    { label: 'Health Data Vault (AES-256)', page: 'vault', category: 'Data Sovereignty' },
+    { label: 'Health Passport (Verifiable QR)', page: 'passport', category: 'Digital Identity' },
     { label: 'Environmental Health & AQI Radar', page: 'environment', category: 'Environment' },
-    { label: 'Vitals & Wearables Monitor', page: 'vitals', category: 'Diagnostics' },
-    { label: 'Hydration & Nutrition Plan', page: 'nutrition', category: 'Wellness' },
-    { label: 'Gamification & Challenges', page: 'gamification', category: 'Engagement' },
-    { label: 'Rural Mode & Offline Guides', page: 'rural', category: 'Accessibility' },
+    { label: 'Vitals & Wearables Monitor', page: 'vitals', category: 'Biometrics' },
+    { label: 'Hydration & Nutrition Planner', page: 'nutrition', category: 'Wellness' },
+    { label: 'Gamification & Challenges', page: 'gamification', category: 'Rewards' },
+    { label: 'Rural & Low-Bandwidth Mode', page: 'rural', category: 'Accessibility' },
   ];
 
   const filteredSearch = searchQuery.trim()
@@ -106,10 +118,10 @@ export default function Header({
 
   return (
     <header style={{
-      height: 68,
-      background: 'rgba(11, 17, 32, 0.85)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
+      height: 70,
+      background: 'rgba(11, 17, 32, 0.88)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--border)',
       position: 'sticky',
       top: 0,
@@ -120,16 +132,16 @@ export default function Header({
       padding: '0 24px',
       gap: 16,
     }}>
-      {/* Left: Mobile hamburger + Global Search */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, maxWidth: 540 }}>
+      {/* Left: Hamburger + Global Search */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1, maxWidth: 520 }}>
         <button
           onClick={onToggleSidebar}
           style={{
             background: 'var(--bg3)',
             border: '1px solid var(--border)',
-            borderRadius: 8,
+            borderRadius: 10,
             color: 'var(--text2)',
-            padding: 8,
+            padding: '8px 10px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -141,17 +153,17 @@ export default function Header({
           <Menu size={18} />
         </button>
 
-        {/* Search bar with auto-complete */}
+        {/* Search input with live auto-complete */}
         <div style={{ position: 'relative', width: '100%' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            background: searchFocused ? 'var(--bg3)' : 'rgba(30, 41, 59, 0.6)',
+            background: searchFocused ? 'rgba(30, 41, 59, 0.9)' : 'rgba(30, 41, 59, 0.55)',
             border: searchFocused ? '1px solid var(--green)' : '1px solid var(--border)',
-            boxShadow: searchFocused ? '0 0 12px rgba(16, 185, 129, 0.2)' : 'none',
-            borderRadius: 10,
-            padding: '7px 12px',
+            boxShadow: searchFocused ? '0 0 16px rgba(16, 185, 129, 0.25)' : 'none',
+            borderRadius: 12,
+            padding: '8px 14px',
             transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           }}>
             <Search size={16} color={searchFocused ? 'var(--green)' : 'var(--text3)'} />
@@ -162,7 +174,7 @@ export default function Header({
               onChange={e => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-              placeholder="Search symptoms, lab tests, medications... (Press / to search)"
+              placeholder="Search symptoms, lab tests, medicines... (Ctrl+K)"
               style={{
                 flex: 1,
                 background: 'transparent',
@@ -173,18 +185,19 @@ export default function Header({
               }}
             />
             <span style={{
-              fontSize: 10,
+              fontSize: 10.5,
               background: 'rgba(255, 255, 255, 0.08)',
-              padding: '2px 6px',
-              borderRadius: 4,
+              padding: '2px 7px',
+              borderRadius: 6,
               color: 'var(--text3)',
               fontFamily: 'var(--font-mono)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
             }}>
-              /
+              ⌘K
             </span>
           </div>
 
-          {/* Search Dropdown Results */}
+          {/* Search Dropdown */}
           {searchFocused && filteredSearch.length > 0 && (
             <div style={{
               position: 'absolute',
@@ -194,9 +207,9 @@ export default function Header({
               background: 'rgba(15, 23, 42, 0.98)',
               backdropFilter: 'blur(20px)',
               border: '1px solid var(--border-hover)',
-              borderRadius: 12,
+              borderRadius: 14,
               padding: 8,
-              boxShadow: '0 16px 40px rgba(0,0,0,0.6)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
               zIndex: 100,
               maxHeight: 320,
               overflowY: 'auto',
@@ -209,7 +222,7 @@ export default function Header({
                     setSearchQuery('');
                   }}
                   style={{
-                    padding: '9px 12px',
+                    padding: '10px 14px',
                     borderRadius: 8,
                     cursor: 'pointer',
                     display: 'flex',
@@ -240,8 +253,100 @@ export default function Header({
         </div>
       </div>
 
-      {/* Center / Right: Quick Action Pills */}
+      {/* Center/Right: Interactive Gamification Badges, Streak & Action Controls */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Streak Indicator Pill */}
+        <div
+          onClick={() => setRewardsModalOpen(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 12px',
+            borderRadius: 20,
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            color: 'var(--amber)',
+            fontSize: 12.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          title="Daily Activity Streak — Click to view prizes"
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.25)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <Flame size={15} color="var(--amber)" />
+          <span>{streak}d Streak</span>
+        </div>
+
+        {/* Interactive Level & XP / Prize Progress Chip */}
+        <div
+          onClick={() => setRewardsModalOpen(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '5px 14px 5px 10px',
+            borderRadius: 24,
+            background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(6, 182, 212, 0.08) 100%)',
+            border: '1px solid rgba(16, 185, 129, 0.35)',
+            cursor: 'pointer',
+            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          title="Click to open Prize Locker & Quests"
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-1px)';
+            e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.25)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          {/* Circular mini progress ring */}
+          <div style={{ position: 'relative', width: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg viewBox="0 0 36 36" width="26" height="26">
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.12)"
+                strokeWidth="3.5"
+              />
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="var(--green)"
+                strokeWidth="3.5"
+                strokeDasharray={`${levelProgressPct}, 100`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span style={{ position: 'absolute', fontSize: 10, fontWeight: 800, color: '#ffffff' }}>
+              {currentLevel}
+            </span>
+          </div>
+
+          <div style={{ textAlign: 'left', lineHeight: 1.15 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#ffffff' }}>
+              {xp} <span style={{ fontSize: 10, color: 'var(--text3)' }}>XP</span>
+            </div>
+            {nextTier && (
+              <div style={{ fontSize: 9.5, color: 'var(--green)', fontWeight: 600 }}>
+                {xpNeededForNext} XP to Prize
+              </div>
+            )}
+          </div>
+
+          <Gift size={15} color="var(--blue)" />
+        </div>
+
         {/* Quick Triage Pill */}
         <button
           onClick={() => onNavigate('checker')}
@@ -264,56 +369,6 @@ export default function Header({
         >
           <Sparkles size={14} />
           <span className="hide-mobile">AI Triage</span>
-        </button>
-
-        {/* Upload Lab Pill */}
-        <button
-          onClick={() => onNavigate('lab')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            padding: '7px 13px',
-            borderRadius: 20,
-            background: activePage === 'lab' ? 'var(--blue)' : 'rgba(56, 189, 248, 0.12)',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            color: activePage === 'lab' ? '#090d16' : 'var(--blue)',
-            fontSize: 12.5,
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-1px)'}
-          onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <FileText size={14} />
-          <span className="hide-mobile">Scan Lab</span>
-        </button>
-
-        {/* Emergency Hotline Button */}
-        <button
-          onClick={() => {
-            window.location.href = 'tel:112';
-            showToast('Initiating 112 Emergency Call...', 'error');
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '7px 12px',
-            borderRadius: 20,
-            background: 'rgba(244, 63, 94, 0.12)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
-            color: 'var(--red)',
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'all 0.15s',
-          }}
-          title="Direct emergency dial 112"
-        >
-          <PhoneCall size={13} />
-          <span>112</span>
         </button>
 
         {/* Notification Bell Dropdown */}
@@ -356,7 +411,7 @@ export default function Header({
               position: 'absolute',
               top: 'calc(100% + 10px)',
               right: 0,
-              width: 340,
+              width: 350,
               background: 'rgba(15, 23, 42, 0.98)',
               backdropFilter: 'blur(20px)',
               border: '1px solid var(--border-hover)',
@@ -410,7 +465,11 @@ export default function Header({
                   <div
                     key={n.id}
                     onClick={() => {
-                      onNavigate(n.page);
+                      if (n.type === 'reward') {
+                        setRewardsModalOpen(true);
+                      } else {
+                        onNavigate(n.page);
+                      }
                       setNotificationsOpen(false);
                     }}
                     style={{
@@ -427,7 +486,7 @@ export default function Header({
                       <span style={{
                         fontSize: 12.5,
                         fontWeight: 600,
-                        color: n.type === 'alert' ? 'var(--red)' : 'var(--text)',
+                        color: n.type === 'alert' ? 'var(--red)' : n.type === 'reward' ? 'var(--green)' : 'var(--text)',
                       }}>
                         {n.title}
                       </span>
@@ -476,7 +535,7 @@ export default function Header({
             </div>
             <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
               <div style={{ fontSize: 12, fontWeight: 600 }}>Sathish S</div>
-              <div style={{ fontSize: 10, color: 'var(--green)' }}>Level 3 • 340 XP</div>
+              <div style={{ fontSize: 10, color: 'var(--green)' }}>Level {currentLevel} • {currentTier.title}</div>
             </div>
             <ChevronDown size={14} color="var(--text3)" />
           </button>
@@ -487,7 +546,7 @@ export default function Header({
               position: 'absolute',
               top: 'calc(100% + 10px)',
               right: 0,
-              width: 220,
+              width: 230,
               background: 'rgba(15, 23, 42, 0.98)',
               backdropFilter: 'blur(20px)',
               border: '1px solid var(--border-hover)',
@@ -510,19 +569,20 @@ export default function Header({
                   fontSize: 10,
                   fontWeight: 700,
                 }}>
-                  Premium Citizen
+                  Level {currentLevel} {currentTier.title}
                 </div>
               </div>
 
               {[
-                { label: 'Family Profiles', page: 'family' },
-                { label: 'Health Passport', page: 'passport' },
-                { label: 'Settings & Security', page: 'settings' },
+                { label: '🎁 Prize Locker & Quests', action: () => setRewardsModalOpen(true) },
+                { label: '👨‍👩‍👧 Family Profiles', action: () => onNavigate('family') },
+                { label: '🪪 Health Passport', action: () => onNavigate('passport') },
+                { label: '⚙️ Settings & Security', action: () => onNavigate('settings') },
               ].map(item => (
                 <div
-                  key={item.page}
+                  key={item.label}
                   onClick={() => {
-                    onNavigate(item.page);
+                    item.action();
                     setProfileOpen(false);
                   }}
                   style={{

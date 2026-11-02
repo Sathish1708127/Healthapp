@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   HeartPulse, Thermometer, Droplets, Moon, AlertTriangle,
-  ArrowRight, ShieldCheck, Sparkles, Activity, Plus
+  ArrowRight, Sparkles, Activity, Gift, Flame
 } from '../components/Icons';
 import { Card, SectionTitle, Badge, AlertBanner, ProgressBar, Btn, Grid } from '../components/UI';
+import { useGamification } from '../context/GamificationContext';
 
 export default function Dashboard({ onNavigate }) {
+  const {
+    xp,
+    currentLevel,
+    currentTier,
+    nextTier,
+    xpNeededForNext,
+    levelProgressPct,
+    streak,
+    quests,
+    completeQuest,
+    setRewardsModalOpen,
+  } = useGamification();
+
+  const [waterCount, setWaterCount] = useState(1.8);
+
   const stats = [
     {
       icon: HeartPulse,
@@ -32,7 +48,7 @@ export default function Dashboard({ onNavigate }) {
       label: 'Blood Oxygen',
       val: '98',
       unit: '%',
-      trend: 'Excellent',
+      trend: 'Optimal (98%)',
       trendColor: 'var(--green)',
       iconColor: 'var(--purple)',
       bgGrad: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(168, 85, 247, 0.04) 100%)',
@@ -49,8 +65,13 @@ export default function Dashboard({ onNavigate }) {
     },
   ];
 
+  const handleQuickHydrate = () => {
+    setWaterCount(prev => Math.min(+(prev + 0.25).toFixed(2), 3.0));
+    completeQuest('water');
+  };
+
   return (
-    <div>
+    <div className="fade-in">
       {/* Welcome Banner */}
       <div style={{
         display: 'flex',
@@ -58,7 +79,7 @@ export default function Dashboard({ onNavigate }) {
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: 16,
-        marginBottom: 24,
+        marginBottom: 20,
       }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -151,8 +172,15 @@ export default function Dashboard({ onNavigate }) {
         })}
       </Grid>
 
-      {/* Middle Row: Health Score & Recent Symptoms */}
-      <Grid cols={2} gap={20} style={{ marginBottom: 24 }}>
+      {/* Health insights and gamification */}
+      <Grid
+        cols={3}
+        gap={16}
+        style={{
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+          marginBottom: 24,
+        }}
+      >
         {/* Health Score Card */}
         <Card>
           <SectionTitle badge={<Badge color="green">Normal Range</Badge>}>
@@ -241,6 +269,138 @@ export default function Dashboard({ onNavigate }) {
             Launch triage assessment →
           </Btn>
         </Card>
+
+        {/* Gamification status */}
+        <Card
+          style={{
+            minHeight: 280,
+            padding: 18,
+            background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(6, 78, 59, 0.3))',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            boxShadow: '0 8px 30px rgba(16, 185, 129, 0.08)',
+          }}
+        >
+          <SectionTitle style={{ marginBottom: 10 }} badge={<Flame size={15} color="var(--amber)" />}>
+            Your Progress
+          </SectionTitle>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              role="progressbar"
+              aria-label={nextTier ? `Progress to level ${nextTier.level}` : 'Maximum level reached'}
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={Math.round(levelProgressPct)}
+              style={{ position: 'relative', width: 84, height: 84, flexShrink: 0 }}
+            >
+              <svg viewBox="0 0 100 100" width="84" height="84" aria-hidden="true">
+                <circle cx="50" cy="50" r="39" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="39"
+                  fill="none"
+                  stroke="url(#xpProgressGradient)"
+                  strokeWidth="8"
+                  strokeDasharray="245.04"
+                  strokeDashoffset={245.04 * (1 - levelProgressPct / 100)}
+                  strokeLinecap="round"
+                  style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 0.5s ease' }}
+                />
+                <defs>
+                  <linearGradient id="xpProgressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="100%" stopColor="#38bdf8" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1.15,
+              }}>
+                <span style={{ fontSize: 21 }}>{currentTier.badge}</span>
+                <span style={{ fontSize: 10, color: 'var(--text2)', fontWeight: 700 }}>
+                  {Math.round(levelProgressPct)}%
+                </span>
+              </div>
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--text2)' }}>Level {currentLevel}</div>
+              <div style={{ fontSize: 15, fontWeight: 800, lineHeight: 1.25 }}>{currentTier.title}</div>
+              <div style={{ fontSize: 12, color: 'var(--green)', fontWeight: 700, marginTop: 5 }}>
+                {xp} XP earned
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text2)', lineHeight: 1.5 }}>
+            {nextTier
+              ? `Just ${xpNeededForNext} more XP to reach Level ${nextTier.level}. Keep it up!`
+              : 'You’ve reached the highest level. Keep up your healthy habits!'}
+          </div>
+          {nextTier && (
+            <div style={{ fontSize: 10.5, color: 'var(--text3)', marginTop: 4 }}>
+              {xpInCurrentLevel(xp, currentTier)} / {nextTier.xpRequired - currentTier.xpRequired} XP to next level
+            </div>
+          )}
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 8,
+            marginTop: 12,
+            paddingTop: 10,
+            borderTop: '1px solid var(--border)',
+          }}>
+            <span style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 700 }}>
+              🔥 {streak}-day streak
+            </span>
+            <Btn variant="outline" onClick={() => setRewardsModalOpen(true)} style={{ fontSize: 11, padding: '6px 10px' }}>
+              <Gift size={13} />
+              <span>Rewards</span>
+            </Btn>
+          </div>
+
+          <details style={{ marginTop: 10 }}>
+            <summary style={{ cursor: 'pointer', color: 'var(--text2)', fontSize: 11, fontWeight: 700 }}>
+              Today’s quests · {quests.filter(q => q.completed).length}/{quests.length}
+            </summary>
+            <div style={{ display: 'grid', gap: 7, marginTop: 8 }}>
+              {quests.slice(0, 4).map(q => (
+                <button
+                  key={q.id}
+                  type="button"
+                  disabled={q.completed}
+                  onClick={() => q.id === 'water' ? handleQuickHydrate() : completeQuest(q.id)}
+                  style={{
+                    padding: '7px 9px',
+                    borderRadius: 8,
+                    background: q.completed ? 'rgba(16, 185, 129, 0.06)' : 'rgba(30, 41, 59, 0.5)',
+                    border: q.completed ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid var(--border)',
+                    color: q.completed ? 'var(--text3)' : 'var(--text)',
+                    cursor: q.completed ? 'default' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8,
+                    textAlign: 'left',
+                    font: 'inherit',
+                  }}
+                >
+                  <span style={{ fontSize: 11 }}>{q.icon} {q.label}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: q.completed ? 'var(--green)' : 'var(--amber)', whiteSpace: 'nowrap' }}>
+                    {q.completed ? 'Done ✓' : `+${q.xp} XP`}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </details>
+        </Card>
       </Grid>
 
       {/* Disease Categories Grid */}
@@ -283,4 +443,8 @@ export default function Dashboard({ onNavigate }) {
       </Card>
     </div>
   );
+}
+
+function xpInCurrentLevel(totalXP, currentTier) {
+  return Math.max(totalXP - currentTier.xpRequired, 0);
 }
